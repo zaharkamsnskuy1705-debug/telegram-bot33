@@ -1,1 +1,1 @@
-worker: python pc.py
+worker: pip install -r requirements.txt && python pc.py
