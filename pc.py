@@ -1,8 +1,8 @@
 import os
 import psutil
 from wakeonlan import send_magic_packet
-from telegram import InlineKeyboardButton, InlineKeyboardMarkup
-from telegram.ext import Application, CommandHandler
+from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
+from telegram.ext import Application, CommandHandler, ContextTypes
 
 TOKEN = "8089393760:AAFCTCKWePv3Ihc34AroLHr0BUmouC2Mwvo"
 USER_ID = 1073348110
