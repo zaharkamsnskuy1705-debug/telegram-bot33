@@ -1,5 +1,4 @@
-aiogram
+python-telegram-bot==20.7
 psutil
 python-dotenv
 wakeonlan
-telegram
