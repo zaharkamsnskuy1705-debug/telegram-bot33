@@ -1,10 +1,11 @@
 import os
 import psutil
 from wakeonlan import send_magic_packet
-from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
-from telegram.ext import Application, ApplicationBuilder, CommandHandler, ContextTypes
 
-TOKEN = "8089393760:AAFCTCKWePv3Ihc34AroLHr0BUmouC2Mwvo"
+from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
+from telegram.ext import ApplicationBuilder, CommandHandler, CallbackQueryHandler, ContextTypes
+
+TOKEN = os.getenv("TOKEN")  # 🔐 токен через Railway
 USER_ID = 1073348110
 
 PC_IP = "192.168.0.107"
@@ -18,14 +19,14 @@ last_action = "Нема дій"
 # ---------------- STATUS ----------------
 
 def is_online():
-    return os.system(f"ping -n 1 -w 700 {PC_IP} > nul") == 0
+    return os.system(f"ping -c 1 -W 1 {PC_IP} > /dev/null") == 0
 
 
 def stats():
     return (
         psutil.cpu_percent(),
         psutil.virtual_memory().percent,
-        psutil.disk_usage("C:\\").percent
+        psutil.disk_usage("/").percent
     )
 
 
@@ -48,11 +49,9 @@ def menu():
 
     kb = InlineKeyboardMarkup([
         [InlineKeyboardButton("🔄 Оновити", callback_data="refresh")],
-
         [InlineKeyboardButton("⚡ Увімкнути ПК", callback_data="wake")],
         [InlineKeyboardButton("⛔ Вимкнути ПК", callback_data="shutdown")],
         [InlineKeyboardButton("🔁 Перезавантажити ПК", callback_data="restart")],
-
         [InlineKeyboardButton("🎮 Steam", callback_data="steam")],
         [InlineKeyboardButton("📋 Процеси", callback_data="list")],
         [InlineKeyboardButton("📁 Файли", callback_data="files")]
@@ -137,40 +136,34 @@ async def button(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await q.answer()
     d = q.data
 
-    # 🔄 refresh
     if d == "refresh":
         text, kb = menu()
         await q.edit_message_text(text, reply_markup=kb)
 
-    # ⚡ wake
     elif d == "wake":
         send_magic_packet(PC_MAC, ip_address=BROADCAST_IP)
         last_action = "ПК увімкнено"
         text, kb = menu()
         await q.edit_message_text(text, reply_markup=kb)
 
-    # ⛔ shutdown
     elif d == "shutdown":
         os.system("shutdown /s /t 0")
         last_action = "ПК вимкнено"
         text, kb = menu()
         await q.edit_message_text(text, reply_markup=kb)
 
-    # 🔁 restart
     elif d == "restart":
         os.system("shutdown /r /t 0")
         last_action = "ПК перезавантажено"
         text, kb = menu()
         await q.edit_message_text(text, reply_markup=kb)
 
-    # 🎮 steam
     elif d == "steam":
         os.system("start steam://open/main")
         last_action = "Steam запущено"
         text, kb = menu()
         await q.edit_message_text(text, reply_markup=kb)
 
-    # 📋 processes
     elif d == "list":
         last_action = "Процеси"
         await q.edit_message_text("📋 Процеси:", reply_markup=process_keyboard())
@@ -181,7 +174,6 @@ async def button(update: Update, context: ContextTypes.DEFAULT_TYPE):
         last_action = f"Закрито {name}"
         await q.edit_message_text("📋 Процеси:", reply_markup=process_keyboard())
 
-    # 📁 files
     elif d == "files":
         last_action = "Файли"
         await q.edit_message_text("📁 Файли:", reply_markup=file_keyboard(BASE_DIR))
@@ -197,7 +189,6 @@ async def button(update: Update, context: ContextTypes.DEFAULT_TYPE):
         except:
             await q.message.reply_text("❌ Не вдалося відкрити файл")
 
-    # ⬅️ back
     elif d == "back":
         text, kb = menu()
         await q.edit_message_text(text, reply_markup=kb)
