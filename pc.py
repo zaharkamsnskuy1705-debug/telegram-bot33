@@ -5,7 +5,7 @@ from wakeonlan import send_magic_packet
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import ApplicationBuilder, CommandHandler, CallbackQueryHandler, ContextTypes
 
-TOKEN = os.getenv("BOT_TOKEN")  # 🔐 токен через Railway
+TOKEN = os.getenv("TOKEN")  # 🔐 токен через Railway
 USER_ID = 1073348110
 
 PC_IP = "192.168.0.107"
